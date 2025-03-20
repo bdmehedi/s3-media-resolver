@@ -1,6 +1,6 @@
 module github.com/bdmehedi/s3-media-resolver
 
-go 1.22
+go 1.23.0
 
 toolchain go1.23.7
 
@@ -29,4 +29,5 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
 	github.com/redis/go-redis/v9 v9.7.1 // indirect
+	golang.org/x/time v0.11.0 // indirect
 )

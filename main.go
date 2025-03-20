@@ -18,6 +18,7 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3" // SQLite driver
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/time/rate"
 )
 
 var (
@@ -32,6 +33,7 @@ var (
     expiry     time.Duration
     cacheDriver string
     db         *sql.DB
+	limiter *rate.Limiter
 )
 
 func main() {
@@ -39,6 +41,7 @@ func main() {
 
     initCache()
     initS3Presigner()
+	initLimiter()
 
     http.HandleFunc("/", rootHandler)
     http.HandleFunc("/media", mediaHandler)
@@ -134,7 +137,34 @@ func initS3Presigner() {
     presigner = s3.NewPresignClient(client)
 }
 
+func initLimiter() {
+	// Get rate limiting settings from environment variables
+	requestsPerSecond := os.Getenv("RATE_LIMIT_REQUESTS_PER_SECOND")
+	burstSize := os.Getenv("RATE_LIMIT_BURST_SIZE")
+
+	// Convert them to integers (with fallback values if empty)
+	rateLimit, err := strconv.Atoi(requestsPerSecond)
+	if err != nil {
+		rateLimit = 5 // Default value
+	}
+
+	burst, err := strconv.Atoi(burstSize)
+	if err != nil {
+		burst = 10 // Default value
+	}
+
+	// Initialize the rate limiter with values from .env
+	limiter = rate.NewLimiter(rate.Limit(rateLimit), burst)
+}
+
 func rootHandler(w http.ResponseWriter, r *http.Request) {
+	// Check if the rate limiter allows the request
+	if !limiter.Allow() {
+		// If rate limit is exceeded, respond with 429 status code
+		http.Error(w, "Too many requests, please try again later.", http.StatusTooManyRequests)
+		return
+	}
+
     // Set Content-Type header for HTML response
     w.Header().Set("Content-Type", "text/html")
 
