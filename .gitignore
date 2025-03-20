@@ -1,3 +1,4 @@
 .env
 /.vscode
 media-url-generator
+cache.db
