@@ -36,6 +36,7 @@ var (
 	limiter *rate.Limiter
 )
 
+
 func main() {
     loadEnv()
 
@@ -44,8 +45,8 @@ func main() {
 	initLimiter()
 
     http.HandleFunc("/", rootHandler)
-    http.HandleFunc("/media", mediaHandler)
-    http.HandleFunc("/media/refresh", refreshHandler)
+    http.HandleFunc("/media", AuthMiddleware(mediaHandler))
+    http.HandleFunc("/media/refresh", AuthMiddleware(refreshHandler))
 
     fmt.Println("Server running on port:", os.Getenv("SERVER_PORT"))
     log.Fatal(http.ListenAndServe(":"+os.Getenv("SERVER_PORT"), nil))
