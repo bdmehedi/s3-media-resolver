@@ -9,17 +9,17 @@ import (
 type HomeController struct{}
 
 func NewHomeController() *HomeController {
-    return &HomeController{}
+	return &HomeController{}
 }
 
 func (c *HomeController) HandleHome(w http.ResponseWriter, r *http.Request) {
-    if !config.AppConfig.Limiter.Allow() {
-        http.Error(w, "Too many requests, please try again later.", http.StatusTooManyRequests)
-        return
-    }
+	if !config.AppConfig.Limiter.Allow() {
+		http.Error(w, "Too many requests, please try again later.", http.StatusTooManyRequests)
+		return
+	}
 
-    w.Header().Set("Content-Type", "text/html")
-    _, err := w.Write([]byte(`
+	w.Header().Set("Content-Type", "text/html")
+	_, err := w.Write([]byte(`
         <html>
             <head>
                 <title>Welcome to the Media URL Generator</title>
@@ -59,8 +59,8 @@ func (c *HomeController) HandleHome(w http.ResponseWriter, r *http.Request) {
             </body>
         </html>
     `))
-    
-    if err != nil {
-        http.Error(w, "Failed to generate response", http.StatusInternalServerError)
-    }
+
+	if err != nil {
+		http.Error(w, "Failed to generate response", http.StatusInternalServerError)
+	}
 }

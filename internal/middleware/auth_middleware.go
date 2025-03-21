@@ -1,24 +1,24 @@
 package middleware
 
 import (
-    "net/http"
-    "github.com/bdmehedi/s3-media-resolver/internal/config"
+	"github.com/bdmehedi/s3-media-resolver/internal/config"
+	"net/http"
 )
 
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        token := r.URL.Query().Get("token")
-        
-        if token == "" {
-            http.Error(w, "Token is required", http.StatusUnauthorized)
-            return
-        }
+	return func(w http.ResponseWriter, r *http.Request) {
+		token := r.URL.Query().Get("token")
 
-        if token != config.AppConfig.AppToken {
-            http.Error(w, "Invalid token", http.StatusForbidden)
-            return
-        }
+		if token == "" {
+			http.Error(w, "Token is required", http.StatusUnauthorized)
+			return
+		}
 
-        next.ServeHTTP(w, r)
-    }
+		if token != config.AppConfig.AppToken {
+			http.Error(w, "Invalid token", http.StatusForbidden)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	}
 }
